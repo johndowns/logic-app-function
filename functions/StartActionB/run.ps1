@@ -17,7 +17,7 @@ $body = "{""operationId"": ""$operationId""}"
 
 # Associate values to output bindings by calling 'Push-OutputBinding'.
 Push-OutputBinding -Name Response -Value ([HttpResponseContext]@{
-    StatusCode = [HttpStatusCode]::OK
+    StatusCode = [HttpStatusCode]::Accepted
     ContentType = "application/json"
     Body = $body
 })
