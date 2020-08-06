@@ -5,7 +5,7 @@
             "Do_Action_A": {
                 "inputs": {
                     "method": "POST",
-                    "uri": "http://todo.com"
+                    "uri": "https://REPLACEME.azurewebsites.net/api/ActionA"
                 },
                 "runAfter": {
                     "Prepare": [
@@ -14,64 +14,12 @@
                 },
                 "type": "Http"
             },
-            "Finish": {
-                "inputs": {
-                    "method": "POST",
-                    "uri": "http://todo.com"
-                },
-                "runAfter": {
-                    "Do_Action_A": [
-                        "Succeeded"
-                    ],
-                    "Wait_for_Action_B_to_complete": [
-                        "Succeeded"
-                    ]
-                },
-                "type": "Http"
-            },
-            "Prepare": {
-                "inputs": {
-                    "method": "POST",
-                    "uri": "http://todo.com"
-                },
-                "runAfter": {},
-                "type": "Http"
-            },
-            "Set_operation_ID_variable": {
-                "inputs": {
-                    "variables": [
-                        {
-                            "name": "ActionBOperationId",
-                            "type": "string",
-                            "value": "TODO"
-                        }
-                    ]
-                },
-                "runAfter": {
-                    "Start_Action_B_(long-running)": [
-                        "Succeeded"
-                    ]
-                },
-                "type": "InitializeVariable"
-            },
-            "Start_Action_B_(long-running)": {
-                "inputs": {
-                    "method": "POST",
-                    "uri": "http://todo.com"
-                },
-                "runAfter": {
-                    "Prepare": [
-                        "Succeeded"
-                    ]
-                },
-                "type": "Http"
-            },
-            "Wait_for_Action_B_to_complete": {
+            "Do_until_for_Action_B_to_complete": {
                 "actions": {
                     "Get_Action_B_status": {
                         "inputs": {
                             "method": "GET",
-                            "uri": "http://todo.com/@{variables('ActionBOperationId')}"
+                            "uri": "https://REPLACEME.azurewebsites.net/api/GetActionBStatus?operationId=@{body('Parse_operation_ID_from_JSON_response')?['operationId']}"
                         },
                         "runAfter": {
                             "Pause": [
@@ -79,6 +27,25 @@
                             ]
                         },
                         "type": "Http"
+                    },
+                    "Parse_operation_status_from_JSON_response": {
+                        "inputs": {
+                            "content": "@body('Get_Action_B_status')",
+                            "schema": {
+                                "properties": {
+                                    "status": {
+                                        "type": "string"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        },
+                        "runAfter": {
+                            "Get_Action_B_status": [
+                                "Succeeded"
+                            ]
+                        },
+                        "type": "ParseJson"
                     },
                     "Pause": {
                         "inputs": {
@@ -91,17 +58,71 @@
                         "type": "Wait"
                     }
                 },
-                "expression": "@contains(body('Get_Action_B_status'), 'complete')",
+                "expression": "@equals(body('Parse_operation_status_from_JSON_response')?['status'], 'Complete')",
                 "limit": {
                     "count": 60,
                     "timeout": "PT1H"
                 },
                 "runAfter": {
-                    "Set_operation_ID_variable": [
+                    "Parse_operation_ID_from_JSON_response": [
                         "Succeeded"
                     ]
                 },
                 "type": "Until"
+            },
+            "Finish": {
+                "inputs": {
+                    "method": "POST",
+                    "uri": "https://REPLACEME.azurewebsites.net/api/Finish"
+                },
+                "runAfter": {
+                    "Do_Action_A": [
+                        "Succeeded"
+                    ],
+                    "Do_until_for_Action_B_to_complete": [
+                        "Succeeded"
+                    ]
+                },
+                "type": "Http"
+            },
+            "Parse_operation_ID_from_JSON_response": {
+                "inputs": {
+                    "content": "@body('Start_Action_B_(long-running)')",
+                    "schema": {
+                        "properties": {
+                            "operationId": {
+                                "type": "string"
+                            }
+                        },
+                        "type": "object"
+                    }
+                },
+                "runAfter": {
+                    "Start_Action_B_(long-running)": [
+                        "Succeeded"
+                    ]
+                },
+                "type": "ParseJson"
+            },
+            "Prepare": {
+                "inputs": {
+                    "method": "POST",
+                    "uri": "https://REPLACEME.azurewebsites.net/api/Prepare"
+                },
+                "runAfter": {},
+                "type": "Http"
+            },
+            "Start_Action_B_(long-running)": {
+                "inputs": {
+                    "method": "POST",
+                    "uri": "https://REPLACEME.azurewebsites.net/api/StartActionB"
+                },
+                "runAfter": {
+                    "Prepare": [
+                        "Succeeded"
+                    ]
+                },
+                "type": "Http"
             }
         },
         "contentVersion": "1.0.0.0",
