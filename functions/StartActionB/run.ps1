@@ -4,22 +4,20 @@ using namespace System.Net
 param($Request, $TriggerMetadata)
 
 # Write to the Azure Functions log stream.
-Write-Host "PowerShell HTTP trigger function processed a request."
+Write-Host 'Triggered Start Action B function.'
 
-# Interact with query parameters or the body of the request.
-$name = $Request.Query.Name
-if (-not $name) {
-    $name = $Request.Body.Name
-}
+# Simulate doing some work that might be done to start Action B as a long-running process (e.g. calling another API).
+Start-Sleep -Seconds (Get-Random -Minimum 1 -Maximum 3)
 
-$body = "This HTTP triggered function executed successfully. Pass a name in the query string or in the request body for a personalized response."
+# Create a random operation ID to simulate what a long-running process might do.
+$operationId = New-Guid
 
-if ($name) {
-    $body = "Hello, $name. This HTTP triggered function executed successfully."
-}
+# Create the body of the response.
+$body = "{""operationId"": ""$operationId""}"
 
 # Associate values to output bindings by calling 'Push-OutputBinding'.
 Push-OutputBinding -Name Response -Value ([HttpResponseContext]@{
     StatusCode = [HttpStatusCode]::OK
+    ContentType = "application/json"
     Body = $body
 })

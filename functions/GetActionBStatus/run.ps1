@@ -4,22 +4,37 @@ using namespace System.Net
 param($Request, $TriggerMetadata)
 
 # Write to the Azure Functions log stream.
-Write-Host "PowerShell HTTP trigger function processed a request."
+Write-Host 'Triggered Get Action B Status function.'
 
-# Interact with query parameters or the body of the request.
-$name = $Request.Query.Name
-if (-not $name) {
-    $name = $Request.Body.Name
+# Verify an operation ID was passed in by the caller.
+$operationId = $Request.Query.operationId
+if (!$operationId)
+{
+    Push-OutputBinding -Name Response -Value ([HttpResponseContext]@{
+        StatusCode = [HttpStatusCode]::BadRequest
+        ContentType = "application/json"
+        Body = '{"error": "Please provide an operation ID."}'
+    })
+    return
 }
 
-$body = "This HTTP triggered function executed successfully. Pass a name in the query string or in the request body for a personalized response."
+# Simulate doing some work to get the operation status.
+Start-Sleep -Seconds (Get-Random -Minimum 1 -Maximum 3)
 
-if ($name) {
-    $body = "Hello, $name. This HTTP triggered function executed successfully."
+# Get a random number between 1 and 10. If the number is less than 3, we will say the operation is complete.
+$randomValue = Get-Random -Minimum 1 -Maximum 10
+if ($randomValue -lt 3)
+{
+    $body = '{"status": "Complete"}'
+}
+else
+{
+    $body = '{"status": "Processing"}'
 }
 
 # Associate values to output bindings by calling 'Push-OutputBinding'.
 Push-OutputBinding -Name Response -Value ([HttpResponseContext]@{
     StatusCode = [HttpStatusCode]::OK
+    ContentType = "application/json"
     Body = $body
 })
