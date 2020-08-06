@@ -1,0 +1,121 @@
+{
+    "definition": {
+        "$schema": "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",
+        "actions": {
+            "Do_Action_A": {
+                "inputs": {
+                    "method": "POST",
+                    "uri": "http://todo.com"
+                },
+                "runAfter": {
+                    "Prepare": [
+                        "Succeeded"
+                    ]
+                },
+                "type": "Http"
+            },
+            "Finish": {
+                "inputs": {
+                    "method": "POST",
+                    "uri": "http://todo.com"
+                },
+                "runAfter": {
+                    "Do_Action_A": [
+                        "Succeeded"
+                    ],
+                    "Wait_for_Action_B_to_complete": [
+                        "Succeeded"
+                    ]
+                },
+                "type": "Http"
+            },
+            "Prepare": {
+                "inputs": {
+                    "method": "POST",
+                    "uri": "http://todo.com"
+                },
+                "runAfter": {},
+                "type": "Http"
+            },
+            "Set_operation_ID_variable": {
+                "inputs": {
+                    "variables": [
+                        {
+                            "name": "ActionBOperationId",
+                            "type": "string",
+                            "value": "TODO"
+                        }
+                    ]
+                },
+                "runAfter": {
+                    "Start_Action_B_(long-running)": [
+                        "Succeeded"
+                    ]
+                },
+                "type": "InitializeVariable"
+            },
+            "Start_Action_B_(long-running)": {
+                "inputs": {
+                    "method": "POST",
+                    "uri": "http://todo.com"
+                },
+                "runAfter": {
+                    "Prepare": [
+                        "Succeeded"
+                    ]
+                },
+                "type": "Http"
+            },
+            "Wait_for_Action_B_to_complete": {
+                "actions": {
+                    "Get_Action_B_status": {
+                        "inputs": {
+                            "method": "GET",
+                            "uri": "http://todo.com/@{variables('ActionBOperationId')}"
+                        },
+                        "runAfter": {
+                            "Pause": [
+                                "Succeeded"
+                            ]
+                        },
+                        "type": "Http"
+                    },
+                    "Pause": {
+                        "inputs": {
+                            "interval": {
+                                "count": 30,
+                                "unit": "Second"
+                            }
+                        },
+                        "runAfter": {},
+                        "type": "Wait"
+                    }
+                },
+                "expression": "@contains(body('Get_Action_B_status'), 'complete')",
+                "limit": {
+                    "count": 60,
+                    "timeout": "PT1H"
+                },
+                "runAfter": {
+                    "Set_operation_ID_variable": [
+                        "Succeeded"
+                    ]
+                },
+                "type": "Until"
+            }
+        },
+        "contentVersion": "1.0.0.0",
+        "outputs": {},
+        "parameters": {},
+        "triggers": {
+            "Recurrence": {
+                "recurrence": {
+                    "frequency": "Hour",
+                    "interval": 12
+                },
+                "type": "Recurrence"
+            }
+        }
+    },
+    "parameters": {}
+}
