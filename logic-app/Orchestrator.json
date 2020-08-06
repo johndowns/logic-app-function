@@ -14,7 +14,7 @@
                 },
                 "type": "Http"
             },
-            "Do_until_for_Action_B_to_complete": {
+            "Repeat_until_Action_B_completes": {
                 "actions": {
                     "Get_Action_B_status": {
                         "inputs": {
@@ -79,7 +79,7 @@
                     "Do_Action_A": [
                         "Succeeded"
                     ],
-                    "Do_until_for_Action_B_to_complete": [
+                    "Repeat_until_Action_B_completes": [
                         "Succeeded"
                     ]
                 },
@@ -129,7 +129,7 @@
         "outputs": {},
         "parameters": {},
         "triggers": {
-            "Recurrence": {
+            "Run_on_a_schedule": {
                 "recurrence": {
                     "frequency": "Hour",
                     "interval": 12
