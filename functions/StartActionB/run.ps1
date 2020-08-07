@@ -20,4 +20,7 @@ Push-OutputBinding -Name Response -Value ([HttpResponseContext]@{
     StatusCode = [HttpStatusCode]::Accepted
     ContentType = "application/json"
     Body = $body
+    Headers = @{
+        Location = "https://$env:WEBSITE_HOSTNAME/api/GetActionBStatus?operationId=$operationId"
+    }
 })

@@ -14,62 +14,6 @@
                 },
                 "type": "Http"
             },
-            "Repeat_until_Action_B_completes": {
-                "actions": {
-                    "Get_Action_B_status": {
-                        "inputs": {
-                            "method": "GET",
-                            "uri": "https://REPLACEME.azurewebsites.net/api/GetActionBStatus?operationId=@{body('Parse_operation_ID_from_JSON_response')?['operationId']}"
-                        },
-                        "runAfter": {
-                            "Pause": [
-                                "Succeeded"
-                            ]
-                        },
-                        "type": "Http"
-                    },
-                    "Parse_operation_status_from_JSON_response": {
-                        "inputs": {
-                            "content": "@body('Get_Action_B_status')",
-                            "schema": {
-                                "properties": {
-                                    "status": {
-                                        "type": "string"
-                                    }
-                                },
-                                "type": "object"
-                            }
-                        },
-                        "runAfter": {
-                            "Get_Action_B_status": [
-                                "Succeeded"
-                            ]
-                        },
-                        "type": "ParseJson"
-                    },
-                    "Pause": {
-                        "inputs": {
-                            "interval": {
-                                "count": 30,
-                                "unit": "Second"
-                            }
-                        },
-                        "runAfter": {},
-                        "type": "Wait"
-                    }
-                },
-                "expression": "@equals(body('Parse_operation_status_from_JSON_response')?['status'], 'Complete')",
-                "limit": {
-                    "count": 60,
-                    "timeout": "PT1H"
-                },
-                "runAfter": {
-                    "Parse_operation_ID_from_JSON_response": [
-                        "Succeeded"
-                    ]
-                },
-                "type": "Until"
-            },
             "Finish": {
                 "inputs": {
                     "method": "POST",
@@ -79,30 +23,11 @@
                     "Do_Action_A": [
                         "Succeeded"
                     ],
-                    "Repeat_until_Action_B_completes": [
-                        "Succeeded"
-                    ]
-                },
-                "type": "Http"
-            },
-            "Parse_operation_ID_from_JSON_response": {
-                "inputs": {
-                    "content": "@body('Start_Action_B_(long-running)')",
-                    "schema": {
-                        "properties": {
-                            "operationId": {
-                                "type": "string"
-                            }
-                        },
-                        "type": "object"
-                    }
-                },
-                "runAfter": {
                     "Start_Action_B_(long-running)": [
                         "Succeeded"
                     ]
                 },
-                "type": "ParseJson"
+                "type": "Http"
             },
             "Prepare": {
                 "inputs": {

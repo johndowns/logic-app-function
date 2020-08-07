@@ -25,16 +25,21 @@ Start-Sleep -Seconds (Get-Random -Minimum 1 -Maximum 3)
 $randomValue = Get-Random -Minimum 1 -Maximum 10
 if ($randomValue -lt 3)
 {
-    $body = '{"status": "Complete"}'
+    # Simulate the operation being completed.
+    Push-OutputBinding -Name Response -Value ([HttpResponseContext]@{
+        StatusCode = [HttpStatusCode]::OK
+    })
 }
 else
 {
-    $body = '{"status": "Processing"}'
+    # Simulate the operation still being underway.
+    Push-OutputBinding -Name Response -Value ([HttpResponseContext]@{
+        StatusCode = [HttpStatusCode]::Accepted
+        ContentType = "application/json"
+        Body = $body
+        Headers = @{
+            Location = "https://$env:WEBSITE_HOSTNAME/api/GetActionBStatus?operationId=$operationId"
+        }
+    })
 }
 
-# Associate values to output bindings by calling 'Push-OutputBinding'.
-Push-OutputBinding -Name Response -Value ([HttpResponseContext]@{
-    StatusCode = [HttpStatusCode]::OK
-    ContentType = "application/json"
-    Body = $body
-})
