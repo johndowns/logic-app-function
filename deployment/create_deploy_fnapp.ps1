@@ -19,11 +19,11 @@ param(
 Write-Host "Sign in to Azure interactively"
 Connect-AzAccount
 
-# Write-Host "Create storage account for Azure Function"
-# New-AzStorageAccount -ResourceGroupName $ResourceGroup `
-#                          -AccountName $StorageAccountName `
-#                          -Location $Location `
-#                          -SkuName Standard_GRS
+Write-Host "Create storage account for Azure Function"
+New-AzStorageAccount -ResourceGroupName $ResourceGroup `
+                          -AccountName $StorageAccountName `
+                          -Location $Location `
+                          -SkuName Standard_GRS
 
 Write-Host "Create Azure Function (Consumption) with PowerShell runtime"
 New-AzFunctionApp -Name  $FnAppName `
@@ -35,9 +35,9 @@ New-AzFunctionApp -Name  $FnAppName `
                          -OSType Windows `
                          -RuntimeVersion 6.2
 
-Set-Location -Path ..\functions
-
+Write-Host "Waiting for 20 seconds for function app to complete deployment"
 Start-Sleep -Seconds 20
 
-Write-Host "Deploy function to Azure"                     
+Write-Host "Deploy function to Azure"
+Set-Location -Path (Join-Path $PSScriptRoot '..' 'functions')
 func azure functionapp publish $FnAppName --powershell
